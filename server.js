@@ -15,6 +15,11 @@ const DATA_FILE = './data/sales.json';
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from client build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/dist')));
+}
+
 // Ensure data directory exists
 if (!fs.existsSync('./data')) {
   fs.mkdirSync('./data', { recursive: true });
@@ -75,6 +80,13 @@ app.get('/api/stats', (req, res) => {
     res.status(500).json({ error: 'Failed to get stats' });
   }
 });
+
+// SPA fallback - serve index.html for non-API routes in production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

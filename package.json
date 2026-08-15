@@ -8,6 +8,7 @@
     "server": "node server.js",
     "client": "cd client && npm run dev",
     "build": "cd client && npm run build",
+    "start": "node server.js",
     "scrape": "node scrapers/index.js"
   },
   "dependencies": {
