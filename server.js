@@ -15,9 +15,10 @@ const DATA_FILE = './data/sales.json';
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from client build in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'client/dist')));
+// Serve static files from client build
+const distPath = path.join(__dirname, 'client/dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
 }
 
 // Ensure data directory exists
@@ -81,12 +82,15 @@ app.get('/api/stats', (req, res) => {
   }
 });
 
-// SPA fallback - serve index.html for non-API routes in production
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
-  });
-}
+// SPA fallback - serve index.html for non-API routes
+app.get('*', (req, res) => {
+  const indexPath = path.join(__dirname, 'client/dist/index.html');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).json({ error: 'Frontend not built' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
