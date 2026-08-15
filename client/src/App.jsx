@@ -10,6 +10,7 @@ function App() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
+  const [isMockData, setIsMockData] = useState(true);
   const [filters, setFilters] = useState({
     search: '',
     brand: 'all',
@@ -20,7 +21,18 @@ function App() {
   useEffect(() => {
     fetchSales();
     fetchStats();
+    checkDataSource();
   }, []);
+
+  const checkDataSource = async () => {
+    try {
+      const response = await axios.get('/api/data-source');
+      setIsMockData(response.data.isMock);
+    } catch (error) {
+      console.error('Error checking data source:', error);
+      setIsMockData(true);
+    }
+  };
 
   useEffect(() => {
     applyFilters();
@@ -53,11 +65,13 @@ function App() {
       const response = await axios.post('/api/scrape');
       setProducts(response.data.data.products);
       fetchStats();
+      checkDataSource();
       alert(`Scraped ${response.data.count} products!`);
     } catch (error) {
       console.error('Error scraping:', error);
       alert('Failed to scrape data. Using mock data for demo.');
       setProducts(mockData);
+      setIsMockData(true);
     }
     setLoading(false);
   };
@@ -119,13 +133,20 @@ function App() {
             onFilterChange={handleFilterChange}
             brands={['Sapphire', 'Gul Ahmed']}
           />
-          <button
-            className="scrape-btn"
-            onClick={handleScrape}
-            disabled={loading}
-          >
-            {loading ? '⏳ Refreshing...' : '🔄 Refresh Sales'}
-          </button>
+          <div className="controls-right">
+            {isMockData && (
+              <div className="mock-data-badge">
+                📝 Demo Data
+              </div>
+            )}
+            <button
+              className="scrape-btn"
+              onClick={handleScrape}
+              disabled={loading}
+            >
+              {loading ? '⏳ Refreshing...' : '🔄 Refresh Sales'}
+            </button>
+          </div>
         </div>
 
         <div className="stats-row">

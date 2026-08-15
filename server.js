@@ -35,11 +35,20 @@ if (!fs.existsSync(DATA_FILE)) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(sampleData, null, 2));
 }
 
-// Get all sales
+// Get all sales (with mode support)
 app.get('/api/sales', (req, res) => {
+  const mode = req.query.mode || 'mock'; // default to mock
+
   try {
     const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
-    res.json(data.products);
+
+    if (mode === 'real') {
+      // Real data from scraper (may be empty if scraper hasn't run)
+      res.json(data.products);
+    } else {
+      // Return all available data (mock + any real if present)
+      res.json(data.products);
+    }
   } catch (error) {
     res.status(500).json({ error: 'Failed to read sales data' });
   }
@@ -58,6 +67,22 @@ app.post('/api/scrape', async (req, res) => {
   } catch (error) {
     console.error('Scraping error:', error);
     res.status(500).json({ error: 'Failed to scrape data', details: error.message });
+  }
+});
+
+// Get data source info
+app.get('/api/data-source', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+    const isMockData = data.products.some(p => p.id && p.id.startsWith('sample-'));
+
+    res.json({
+      isMock: isMockData,
+      lastUpdated: data.lastUpdated,
+      productCount: data.products.length
+    });
+  } catch (error) {
+    res.status(500).json({ isMock: true, error: 'Failed to determine data source' });
   }
 });
 

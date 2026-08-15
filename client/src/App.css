@@ -75,6 +75,23 @@ body {
   cursor: not-allowed;
 }
 
+.controls-right {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.mock-data-badge {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .stats-row {
   margin-bottom: 30px;
   display: flex;
