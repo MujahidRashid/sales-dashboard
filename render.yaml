@@ -2,7 +2,7 @@ services:
   - type: web
     name: sales-dashboard
     env: node
-    region: ohio
+    region: singapore
     plan: free
     buildCommand: npm install && cd client && npm install && npm run build
     startCommand: npm start
